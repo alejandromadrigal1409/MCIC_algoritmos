@@ -89,6 +89,8 @@ def solucion_gurobi(m, N, L, A):
     model.optimize()
 
     # Mostrar solución
+    print(f"="*100)
+    print(f"MAKESPAN PARA: {n} TAREAS")
     print(f"\nMakespan óptimo = {Makespan.X}")
 
 # ----------------- CÓDIGO PRINCIPAL -----------------

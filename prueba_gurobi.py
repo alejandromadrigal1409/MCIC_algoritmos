@@ -1,11 +1,15 @@
 import gurobipy as gp
 from gurobipy import GRB
+import numpy as np
 
-n = 5 # número de tareas
+#n = 5 # número de tareas
+#l = [2, 4, 6, 3, 5] # duración de cada tarea
+m = 10 # número de procesadores
 
-l = [2, 4, 6, 3, 5] # duración de cada tarea
-
-m = 2 # número de procesadores
+mu_nom = 3
+sigma_nom = 1
+n = 400
+l = np.random.normal(loc = mu_nom, scale = sigma_nom, size = n)
 
 model = gp.Model("P||Cmax")
 
@@ -29,6 +33,10 @@ model.optimize()
 # Mostrar solución
 print(f"\nMakespan óptimo = {Makespan.X}")
 
+print(l)
+
+"""
 for i in range(m):
     tareas = [j+1 for j in range(n) if x[i,j].X > 0.5]
     print(f"Máquina {i+1}: {tareas}")
+"""
