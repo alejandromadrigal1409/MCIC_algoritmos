@@ -14,6 +14,7 @@ import gurobipy as gp
 from gurobipy import GRB
 import heapq
 
+
 def generador_instancias(dist, n):
   np.random.seed(69)
   mu_nom = 3
@@ -50,7 +51,8 @@ def distribucion_lognormal(mu, sigma, n):
 
 # ----------------- SOLUCIÓN CON GUROBI -----------------
 def solucion_gurobi(m, N, L):
-  print("SOLUCIÓN GUROBI")
+  #print("SOLUCIÓN GUROBI")
+  makespans = []
   for aux in range(len(N)):
     n = N[aux]
     l = L[aux]
@@ -76,13 +78,18 @@ def solucion_gurobi(m, N, L):
     model.optimize()
 
     # Mostrar solución
-    print("="*150)
-    print(f"\nSolución para {n} tareas")
-    print(f"\nMakespan óptimo = {Makespan.X}")
+    #print("="*150)
+    #print(f"\nSolución para {n} tareas")
+    #print(f"\nMakespan óptimo = {Makespan.X}")
+    # Gudar soluciones
+    makespans.append([Makespan.X])
+  
+  return np.array(makespans)
 
 # ----------------- SOLUCIÓN CON GREEDY 1.5 -----------------
 def solucion_greedy_1_5(m, N, L):
-  print("\n\nSOLUCIÓN GREEDY 1.5")
+  #print("\n\nSOLUCIÓN GREEDY 1.5")
+  makespans = []
   for aux in range(len(N)):
     n = N[aux]
     l = L[aux]
@@ -99,13 +106,19 @@ def solucion_greedy_1_5(m, N, L):
 
     Makespan = max(heap)
     # Mostrar solución
-    print("="*150)
-    print(f"\nSolución para {n} tareas")
-    print(f"\nMakespan óptimo = {Makespan}")
+    #print("="*150)
+    #print(f"\nSolución para {n} tareas")
+    #print(f"\nMakespan óptimo = {Makespan}")
+
+    # Gudar soluciones
+    makespans.append([Makespan])
+  
+  return np.array(makespans)
 
 # ----------------- SOLUCIÓN CON GREEDY 2 -----------------
 def solucion_greedy_2(m, N, L):
-  print("\n\nSOLUCIÓN GREEDY 2")
+  #print("\n\nSOLUCIÓN GREEDY 2")
+  makespans = []
   for aux in range(len(N)):
     n = N[aux]
     l = L[aux]
@@ -119,21 +132,59 @@ def solucion_greedy_2(m, N, L):
 
     Makespan = max(heap)
     # Mostrar solución
-    print("="*150)
-    print(f"\nSolución para {n} tareas")
-    print(f"\nMakespan óptimo = {Makespan}")
+    #print("="*150)
+    ##print(f"\nMakespan óptimo = {Makespan}")
+  
+    # Gudar soluciones
+    makespans.append([Makespan])
+  
+  return np.array(makespans)
 
 # ----------------- CÓDIGO PRINCIPAL -----------------
-N = [50, 100, 200, 400] # vector con número de tareas
+#N = [50, 100, 200, 400] # vector con número de tareas
+N = [10, 20, 40, 80]
 m = 10 # 10 procesadores
 
 print("Distribución normal    (0)")
 print("Distribución lognormal (1)")
 dist = input("Selecione una distribución para generar las duraciónde las tareas: ")
+
+makespans_gurobi = np.array([0.0] * len(N))
+makespans_greedy_1_5 = np.array([0.0] * len(N))
+makespans_greedy_2 = np.array([0.0] * len(N))
+
+makespans_gurobi = [[]] * len(N)
+makespans_greedy_1_5 = [[]] * len(N)
+makespans_greedy_2 = [[]] * len(N)
+
+for _ in range(10):
+  L = generador_instancias(dist, N)
+  makespans_gurobi = np.hstack((makespans_gurobi,solucion_gurobi(m, N, L)) )
+  makespans_greedy_1_5 = np.hstack((makespans_greedy_1_5,solucion_gurobi(m, N, L)))
+  makespans_greedy_2 = np.hstack((makespans_greedy_2,solucion_gurobi(m, N, L)))
+
+print(makespans_gurobi)
+print("\n")
+print(makespans_greedy_1_5)
+print("\n")
+print(makespans_greedy_2)
+
+'''
 L = generador_instancias(dist, N)
-solucion_gurobi(m, N, L)
-solucion_greedy_1_5(m, N, L)
-solucion_greedy_2(m, N, L)
+L = generador_instancias(dist, N)
+makespans_gurobi = solucion_gurobi(m, N, L)
+makespans_greedy_1_5 = solucion_greedy_1_5(m, N, L)
+makespans_greedy_2 = solucion_greedy_2(m, N, L)
+print(makespans_gurobi)
+print("\n")
+print(makespans_greedy_1_5)
+print("\n")
+print(makespans_greedy_2)
+print("\n")
+print(makespans_gurobi[1])
+'''
+
+
 
 
 
