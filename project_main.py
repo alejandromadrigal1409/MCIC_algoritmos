@@ -82,14 +82,14 @@ def solucion_gurobi(m, N, L):
 
 # ----------------- SOLUCIÓN CON GREEDY 1.5 -----------------
 def solucion_greedy_1_5(m, N, L):
-  print("SOLUCIÓN GREEDY 1.5")
+  print("\n\nSOLUCIÓN GREEDY 1.5")
   for aux in range(len(N)):
     n = N[aux]
     l = L[aux]
 
     l = sorted(l, reverse=True) 
 
-    heap = [0] * 3  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
+    heap = [0] * m  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
     #heapq.heapify(heap) # crea un min-heap 
 
     for p in l:
@@ -102,6 +102,27 @@ def solucion_greedy_1_5(m, N, L):
     print("="*150)
     print(f"\nSolución para {n} tareas")
     print(f"\nMakespan óptimo = {Makespan}")
+
+# ----------------- SOLUCIÓN CON GREEDY 2 -----------------
+def solucion_greedy_2(m, N, L):
+  print("\n\nSOLUCIÓN GREEDY 2")
+  for aux in range(len(N)):
+    n = N[aux]
+    l = L[aux]
+
+    heap = [0] * m  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
+
+    for p in l:
+        load = heapq.heappop(heap)  # selecciona el procesador con menos cargado 
+        load += p # añade tarea nueva al procesador menos cargado
+        heapq.heappush(heap, load) # creo min-heap con los dato nuevos
+
+    Makespan = max(heap)
+    # Mostrar solución
+    print("="*150)
+    print(f"\nSolución para {n} tareas")
+    print(f"\nMakespan óptimo = {Makespan}")
+
 # ----------------- CÓDIGO PRINCIPAL -----------------
 N = [50, 100, 200, 400] # vector con número de tareas
 m = 10 # 10 procesadores
@@ -110,8 +131,11 @@ print("Distribución normal    (0)")
 print("Distribución lognormal (1)")
 dist = input("Selecione una distribución para generar las duraciónde las tareas: ")
 L = generador_instancias(dist, N)
-solucion_greedy_1_5(m, N, L)
 solucion_gurobi(m, N, L)
+solucion_greedy_1_5(m, N, L)
+solucion_greedy_2(m, N, L)
+
+
 
 
 

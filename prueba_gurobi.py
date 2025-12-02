@@ -3,20 +3,20 @@ import gurobipy as gp
 from gurobipy import GRB
 import numpy as np
 
-#n = 5 # número de tareas
-#l = [2, 4, 6, 3, 5] # duración de cada tarea
-m = 10 # número de procesadores
+n = 7 # número de tareas
+l = [4,2,6,5,9,4,7] # duración de cada tarea
+m = 3 # número de procesadores
 
 mu_nom = 3
 sigma_nom = 1
 mu_lognom = 1
 sigma_lognom = 0.4
-n = 100
+#n = 100
 
 # FIJAR LA SEMILLA PARA REPRODUCIBILIDAD
-np.random.seed(42)
+#np.random.seed(42)
 #l = np.random.normal(loc = mu_nom, scale = sigma_nom, size = n)
-l = np.random.lognormal(mean = mu_lognom, sigma = sigma_lognom, size = n)
+#l = np.random.lognormal(mean = mu_lognom, sigma = sigma_lognom, size = n)
 
 print(l)
 print("n =", n)

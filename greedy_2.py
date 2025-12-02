@@ -1,12 +1,8 @@
 import heapq
-
 l = [4,2,6,5,9,4,7]
 m = 3
 
-l.sort(reverse=True)
-
-heap = [0] * 3  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
-#heapq.heapify(heap) # crea un min-heap 
+heap = [0] * m  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
 
 for p in l:
     load = heapq.heappop(heap)  # selecciona el procesador con menos cargado 
@@ -15,13 +11,3 @@ for p in l:
 
 Makespan = max(heap)
 print(Makespan)
-
-'''
-for i in l:
-    j = M.index(min(M))
-    M[j] += i
-
-print(M)
-Makespan = max(M)    
-print(Makespan)
-'''
