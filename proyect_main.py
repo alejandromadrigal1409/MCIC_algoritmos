@@ -12,9 +12,10 @@
 import numpy as np
 import gurobipy as gp
 from gurobipy import GRB
+import heapq
 
 def generador_instancias(dist, n):
-  np.random.seed(47)
+  np.random.seed(69)
   mu_nom = 3
   sigma_nom = 1
   mu_lognom = 0
@@ -49,6 +50,7 @@ def distribucion_lognormal(mu, sigma, n):
 
 # ----------------- SOLUCIÓN CON GUROBI -----------------
 def solucion_gurobi(m, N, L):
+  print("SOLUCIÓN GUROBI")
   for aux in range(len(N)):
     n = N[aux]
     l = L[aux]
@@ -70,13 +72,36 @@ def solucion_gurobi(m, N, L):
     for i in range(m):
         model.addConstr(sum(l[j] * x[i,j] for j in range(n)) <= Makespan)
 
+    model.setParam('MIPGap', 0.001)
     model.optimize()
 
     # Mostrar solución
-    print(f"="*300)
+    print("="*150)
     print(f"\nSolución para {n} tareas")
     print(f"\nMakespan óptimo = {Makespan.X}")
 
+# ----------------- SOLUCIÓN CON GREEDY 1.5 -----------------
+def solucion_greedy_1_5(m, N, L):
+  print("SOLUCIÓN GREEDY 1.5")
+  for aux in range(len(N)):
+    n = N[aux]
+    l = L[aux]
+
+    l = sorted(l, reverse=True) 
+
+    heap = [0] * 3  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
+    #heapq.heapify(heap) # crea un min-heap 
+
+    for p in l:
+        load = heapq.heappop(heap)  # selecciona el procesador con menos cargado 
+        load += p # añade tarea nueva al procesador menos cargado
+        heapq.heappush(heap, load) # creo min-heap con los dato nuevos
+
+    Makespan = max(heap)
+    # Mostrar solución
+    print("="*150)
+    print(f"\nSolución para {n} tareas")
+    print(f"\nMakespan óptimo = {Makespan}")
 # ----------------- CÓDIGO PRINCIPAL -----------------
 N = [50, 100, 200, 400] # vector con número de tareas
 m = 10 # 10 procesadores
@@ -85,6 +110,7 @@ print("Distribución normal    (0)")
 print("Distribución lognormal (1)")
 dist = input("Selecione una distribución para generar las duraciónde las tareas: ")
 L = generador_instancias(dist, N)
+solucion_greedy_1_5(m, N, L)
 solucion_gurobi(m, N, L)
 
 
