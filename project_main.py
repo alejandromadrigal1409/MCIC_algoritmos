@@ -14,10 +14,11 @@ import gurobipy as gp
 from gurobipy import GRB
 import heapq
 from scipy.stats import t
+import matplotlib.pyplot as plt
 
 
 def generador_instancias(dist, n):
-  np.random.seed(69)
+  #np.random.seed(69)
   mu_nom = 3
   sigma_nom = 1
   mu_lognom = 0
@@ -32,7 +33,6 @@ def generador_instancias(dist, n):
 
 # ----------------- DISTRIBUCIÓN NORMAL -----------------
 def distribucion_normal(mu, sigma, n):
-  #print("\nDuración de tareas\n")
   l = []
   for i in n:
    l.append(np.random.normal(loc = mu, scale = sigma, size = i))
@@ -42,7 +42,6 @@ def distribucion_normal(mu, sigma, n):
 
 # ----------------- DISTRIBUCIÓN LOGNORMAL -----------------
 def distribucion_lognormal(mu, sigma, n):
-  #print("\nTiempo de llegada de tareas\n")
   l = []
   for i in n:
    l.append(np.random.lognormal(mean = mu, sigma = sigma, size = i))
@@ -165,53 +164,69 @@ def mediaIntervaloConfianza(makespans):
 
   return np.array(varStat)
 
+# ----------------- GRAFICA MAKESPAN NORMALIZADO -----------------
+def grafMakespanNorm(n, varStat, varStat_gurobi,leyenda):
+  #
+  makespan = []
+  lb = []
+  up = []
+  for i in range(len(varStat)):
+    z = varStat_gurobi[i][0]
+    aux = varStat[i]/z #normalizar datos
+    makespan.append(aux[0])
+    lb.append(aux[1])
+    up.append(aux[2])
+
+  plt.errorbar(n, makespan,
+             yerr=[np.array(makespan) - np.array(lb),
+                   np.array(up) - np.array(makespan)],  # [abajo, arriba]
+             label=leyenda,
+             fmt='-o',               # línea + círculos
+             linewidth=2, markersize=8,
+             capsize=4,              # "gorritos" en los extremos
+             capthick=1.5,
+             alpha=0.9)
 
 # ----------------- CÓDIGO PRINCIPAL -----------------
-#N = [50, 100, 200, 400] # vector con número de tareas
-N = [10, 20, 40, 80]
+N = [50, 100, 200, 400] # vector con número de tareas
+#N = [10, 20, 40, 80]
 m = 10 # 10 procesadores
 
 print("Distribución normal    (0)")
 print("Distribución lognormal (1)")
 dist = input("Selecione una distribución para generar las duraciónde las tareas: ")
 
-makespans_gurobi = np.array([0.0] * len(N))
-makespans_greedy_1_5 = np.array([0.0] * len(N))
-makespans_greedy_2 = np.array([0.0] * len(N))
-
 makespans_gurobi = [[]] * len(N)
 makespans_greedy_1_5 = [[]] * len(N)
 makespans_greedy_2 = [[]] * len(N)
 
+# Encontrar solución para 10 instancias
 for _ in range(10):
   L = generador_instancias(dist, N)
   makespans_gurobi = np.hstack((makespans_gurobi,solucion_gurobi(m, N, L)) )
-  makespans_greedy_1_5 = np.hstack((makespans_greedy_1_5,solucion_gurobi(m, N, L)))
-  makespans_greedy_2 = np.hstack((makespans_greedy_2,solucion_gurobi(m, N, L)))
+  makespans_greedy_1_5 = np.hstack((makespans_greedy_1_5,solucion_greedy_1_5(m, N, L)))
+  makespans_greedy_2 = np.hstack((makespans_greedy_2,solucion_greedy_2(m, N, L)))
 
-print(makespans_gurobi)
-print("\n")
-print(makespans_greedy_1_5)
-print("\n")
-print(makespans_greedy_2)
+# LLamada a función para calcular promedio e IC
+varStat_gurobi = mediaIntervaloConfianza(makespans_gurobi)
+varStat_greedy_1_5 = mediaIntervaloConfianza(makespans_greedy_1_5)
+varStat_greedy_2 = mediaIntervaloConfianza(makespans_greedy_2)
 
-print("\n")
-print(mediaIntervaloConfianza(makespans_gurobi))
+# LLamada a función para gráficar
+plt.figure(figsize=(8, 5), num="Comparación: Gurobi vs Greedy") 
+grafMakespanNorm(N, varStat_gurobi,     varStat_gurobi, "Gurobi")
+grafMakespanNorm(N, varStat_greedy_1_5, varStat_gurobi, "Greedy 1.5 aprox")
+grafMakespanNorm(N, varStat_greedy_2, varStat_gurobi,   "Greedy 2 aprox")
 
-'''
-L = generador_instancias(dist, N)
-L = generador_instancias(dist, N)
-makespans_gurobi = solucion_gurobi(m, N, L)
-makespans_greedy_1_5 = solucion_greedy_1_5(m, N, L)
-makespans_greedy_2 = solucion_greedy_2(m, N, L)
-print(makespans_gurobi)
-print("\n")
-print(makespans_greedy_1_5)
-print("\n")
-print(makespans_greedy_2)
-print("\n")
-print(makespans_gurobi[1])
-'''
+
+plt.title("n vs Makespan") # Título
+plt.xlabel("n (número de tareas)") # Nombre del eje X
+plt.ylabel("Makespan normalizado") # Nombre del eje y
+plt.ylim(0, None)
+plt.legend()  # Muestra la leyenda
+plt.grid(True)
+plt.show()
+
 
 
 
