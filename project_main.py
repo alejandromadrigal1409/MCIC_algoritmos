@@ -13,6 +13,7 @@ import numpy as np
 import gurobipy as gp
 from gurobipy import GRB
 import heapq
+from scipy.stats import t
 
 
 def generador_instancias(dist, n):
@@ -140,6 +141,31 @@ def solucion_greedy_2(m, N, L):
   
   return np.array(makespans)
 
+# ----------------- PROMEDIO E INTERVALO DE CONFIANZA -----------------
+def mediaIntervaloConfianza(makespans):
+  varStat = []
+  for arr_10 in makespans:
+    aux = []
+    n = len(arr_10)
+    media = np.mean(arr_10)
+    aux.append(media)
+
+    s = s = np.std(arr_10, ddof=1)
+
+    SE = s/np.sqrt(n)
+
+    t_crit = t.ppf(0.975, df=n-1)
+
+    inferior = media - t_crit * SE
+    aux.append(inferior)
+    superior = media + t_crit * SE
+    aux.append(superior)
+
+    varStat.append(aux)
+
+  return np.array(varStat)
+
+
 # ----------------- CÓDIGO PRINCIPAL -----------------
 #N = [50, 100, 200, 400] # vector con número de tareas
 N = [10, 20, 40, 80]
@@ -168,6 +194,9 @@ print("\n")
 print(makespans_greedy_1_5)
 print("\n")
 print(makespans_greedy_2)
+
+print("\n")
+print(mediaIntervaloConfianza(makespans_gurobi))
 
 '''
 L = generador_instancias(dist, N)
