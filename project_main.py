@@ -128,9 +128,6 @@ def solucion_greedy_2(m, N, L):
     Makespan = max(heap)
 
     fin = time.time()
-    # Mostrar solución
-    #print("="*150)
-    ##print(f"\nMakespan óptimo = {Makespan}")
   
     # Gudar soluciones
     makespans.append([Makespan])
@@ -273,13 +270,14 @@ plt.grid(True)
 
 # LLamada a función para gráficar tiempos de ejecución
 plt.figure(figsize=(8, 5), num="Comparación: Tiempo Gurobi vs Tiempo Greedy") 
-#graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi")
+graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi")
 graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox")
-#graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox")
+graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox")
+plt.yscale('log')
 plt.title("n vs Tiempo") # Título
 plt.xlabel("n (número de tareas)") # Nombre del eje X
 plt.ylabel("tiempo (segundos)") # Nombre del eje y
-plt.ylim(0, None)
+plt.ylim(-0.5, None)
 plt.legend()  # Muestra la leyenda
 plt.grid(True)
 
