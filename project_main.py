@@ -52,7 +52,7 @@ def solucion_gurobi(m, N, L):
   makespans = []
   tiempo = []
   for aux in range(len(N)):
-    inicio = time.time()
+    inicio = time.perf_counter() 
     n = N[aux]
     l = L[aux]
 
@@ -76,7 +76,7 @@ def solucion_gurobi(m, N, L):
     model.setParam('MIPGap', 0.001)
     model.optimize()
 
-    fin = time.time()
+    fin = time.perf_counter() 
 
     makespans.append([Makespan.X])
     tiempo.append([fin - inicio])
@@ -89,7 +89,7 @@ def solucion_greedy_1_5(m, N, L):
   tiempo = []
   for aux in range(len(N)):
     l = L[aux]
-    inicio = time.time()
+    inicio = time.perf_counter() 
 
     l = sorted(l, reverse=True) 
 
@@ -103,7 +103,7 @@ def solucion_greedy_1_5(m, N, L):
 
     Makespan = max(heap)
 
-    fin = time.time()
+    fin = time.perf_counter() 
  
     makespans.append([Makespan])
     tiempo.append([fin - inicio])
@@ -116,7 +116,7 @@ def solucion_greedy_2(m, N, L):
   tiempo = []
   for aux in range(len(N)):
     l = L[aux]
-    inicio = time.time()
+    inicio = time.perf_counter() 
 
     heap = [0] * m  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
 
@@ -127,7 +127,7 @@ def solucion_greedy_2(m, N, L):
 
     Makespan = max(heap)
 
-    fin = time.time()
+    fin = time.perf_counter() 
   
     # Gudar soluciones
     makespans.append([Makespan])
@@ -182,13 +182,13 @@ def grafMakespanNorm(n, varStat, varStat_gurobi,leyenda):
               alpha=0.9)
   
 # ----------------- GRAFICA TIEMPOS DE EJECUCIÓN -----------------
-def graficaTiempos(n, varStat,leyenda):
+def graficaTiempos(n, varStat,leyenda,ax,color):
   tiempo = []
   lb = []
   up = []
   for i in range(len(varStat)):
     aux = varStat[i]
-    tiempo.append(aux[0])
+    tiempo.append(aux[0]*1000.0)
     lb.append(aux[1])
     up.append(aux[2])
 
@@ -196,12 +196,14 @@ def graficaTiempos(n, varStat,leyenda):
   tiempo = [0] + tiempo
   lb     = [0] + lb
   up     = [0] + up
+  
+  ax.plot(n, tiempo,
+          label=leyenda,
+          linewidth=2,
+          marker="o",       # tipo de punto
+          markersize=8,     # tamaño del punto
+          color=color)
 
-  plt.plot(n, tiempo,
-           label=leyenda,
-           linewidth=2,
-           marker="o",       # tipo de punto
-           markersize=8)     # tamaño del punto
   '''
   plt.errorbar(n, makespan,
               yerr=[np.array(makespan) - np.array(lb),
@@ -264,10 +266,9 @@ grafMakespanNorm(N, varStat_greedy_2_makespans,   varStat_gurobi_makespans, "Gre
 plt.title("n vs Makespan") # Título
 plt.xlabel("n (número de tareas)") # Nombre del eje X
 plt.ylabel("Makespan normalizado") # Nombre del eje y
-plt.ylim(0, None)
 plt.legend()  # Muestra la leyenda
 plt.grid(True)
-
+'''
 # LLamada a función para gráficar tiempos de ejecución
 plt.figure(figsize=(8, 5), num="Comparación: Tiempo Gurobi vs Tiempo Greedy") 
 graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi")
@@ -277,11 +278,32 @@ plt.yscale('log')
 plt.title("n vs Tiempo") # Título
 plt.xlabel("n (número de tareas)") # Nombre del eje X
 plt.ylabel("tiempo (segundos)") # Nombre del eje y
-plt.ylim(-0.5, None)
+plt.ylim(0.5, None)
 plt.legend()  # Muestra la leyenda
 plt.grid(True)
-
 plt.show()
+
+
+'''
+# LLamada a función para gráficar tiempos de ejecución
+fig, ax1 = plt.subplots(figsize=(8, 5), num="Comparación: Tiempo Gurobi vs Tiempo Greedy")
+ax2 = ax1.twinx()
+ax2.set_yscale('log')
+graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi (escala log)", ax2, color = "#1f77b4")
+graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox (escala lineal)", ax1, color="#ff7f0e")
+graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox (escala lineal)", ax1, color="#2ca02c")
+plt.title("n vs Tiempo") # Título
+ax1.set_xlabel("n (número de tareas)") # Nombre del eje X
+ax1.set_ylabel("tiempo (milisegundos)") # Nombre del eje y
+ax2.set_ylabel('Logaritmica')
+# Combinar leyendas de ambos ejes
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+plt.grid(True, which="both", ls=":")
+plt.tight_layout()
+plt.show()
+
 
 
 
