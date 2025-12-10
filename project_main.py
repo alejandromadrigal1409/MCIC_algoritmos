@@ -189,14 +189,12 @@ def graficaTiempos(n, varStat,leyenda,ax,color):
   for i in range(len(varStat)):
     aux = varStat[i]
     tiempo.append(aux[0]*1000.0)
-    lb.append(aux[1])
-    up.append(aux[2])
+    lb.append(aux[1]*1000.0)
+    up.append(aux[2]*1000.0)
 
-  n      = [0] + n 
-  tiempo = [0] + tiempo
-  lb     = [0] + lb
-  up     = [0] + up
-  
+ 
+
+  '''
   ax.plot(n, tiempo,
           label=leyenda,
           linewidth=2,
@@ -205,19 +203,20 @@ def graficaTiempos(n, varStat,leyenda,ax,color):
           color=color)
 
   '''
-  plt.errorbar(n, makespan,
-              yerr=[np.array(makespan) - np.array(lb),
-                    np.array(up) - np.array(makespan)],  # [abajo, arriba]
+  ax.errorbar(n, tiempo,
+              yerr=[np.array(tiempo) - np.array(lb),
+                    np.array(up) - np.array(tiempo)],  # [abajo, arriba]
               label=leyenda,
               fmt='-o',               # línea + círculos
               linewidth=2, markersize=8,
               capsize=4,              # "gorritos" en los extremos
               capthick=1.5,
-              alpha=0.9) 
-  '''
+              alpha=0.9,
+              color=color) 
+  
 
 # ----------------- CÓDIGO PRINCIPAL -----------------
-N = [50, 100, 200, 400] # vector con número de tareas
+N = [10, 50, 100, 200] # vector con número de tareas
 #N = [10, 20, 40, 80]
 m = 10 # 10 procesadores
 
@@ -287,19 +286,18 @@ plt.show()
 '''
 # LLamada a función para gráficar tiempos de ejecución
 fig, ax1 = plt.subplots(figsize=(8, 5), num="Comparación: Tiempo Gurobi vs Tiempo Greedy")
-ax2 = ax1.twinx()
-ax2.set_yscale('log')
-graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi (escala log)", ax2, color = "#1f77b4")
-graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox (escala lineal)", ax1, color="#ff7f0e")
-graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox (escala lineal)", ax1, color="#2ca02c")
+#ax2 = ax1.twinx()
+graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi (escala der)", ax1, color = "#1f77b4")
+graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox (escala izq)", ax1, color="#ff7f0e")
+graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox (escala izq)", ax1, color="#2ca02c")
 plt.title("n vs Tiempo") # Título
 ax1.set_xlabel("n (número de tareas)") # Nombre del eje X
 ax1.set_ylabel("tiempo (milisegundos)") # Nombre del eje y
-ax2.set_ylabel('Logaritmica')
 # Combinar leyendas de ambos ejes
-lines1, labels1 = ax1.get_legend_handles_labels()
-lines2, labels2 = ax2.get_legend_handles_labels()
-ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+#lines1, labels1 = ax1.get_legend_handles_labels()
+#lines2, labels2 = ax2.get_legend_handles_labels()
+#ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+ax1.legend()
 plt.grid(True, which="both", ls=":")
 plt.tight_layout()
 plt.show()
