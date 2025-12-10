@@ -182,7 +182,7 @@ def grafMakespanNorm(n, varStat, varStat_gurobi,leyenda):
               alpha=0.9)
   
 # ----------------- GRAFICA TIEMPOS DE EJECUCIÓN -----------------
-def graficaTiempos(n, varStat,leyenda,ax,color):
+def graficaTiempos(n, varStat,leyenda,ax,color,columna):
   tiempo = []
   lb = []
   up = []
@@ -203,7 +203,7 @@ def graficaTiempos(n, varStat,leyenda,ax,color):
           color=color)
 
   '''
-  ax.errorbar(n, tiempo,
+  ax[columna].errorbar(n, tiempo,
               yerr=[np.array(tiempo) - np.array(lb),
                     np.array(up) - np.array(tiempo)],  # [abajo, arriba]
               label=leyenda,
@@ -216,7 +216,7 @@ def graficaTiempos(n, varStat,leyenda,ax,color):
   
 
 # ----------------- CÓDIGO PRINCIPAL -----------------
-N = [10, 50, 100, 200] # vector con número de tareas
+N = [1000, 2000, 4000, 8000] # vector con número de tareas
 #N = [10, 20, 40, 80]
 m = 10 # 10 procesadores
 
@@ -285,20 +285,27 @@ plt.show()
 
 '''
 # LLamada a función para gráficar tiempos de ejecución
-fig, ax1 = plt.subplots(figsize=(8, 5), num="Comparación: Tiempo Gurobi vs Tiempo Greedy")
-#ax2 = ax1.twinx()
-graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi (escala der)", ax1, color = "#1f77b4")
-graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox (escala izq)", ax1, color="#ff7f0e")
-graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox (escala izq)", ax1, color="#2ca02c")
-plt.title("n vs Tiempo") # Título
-ax1.set_xlabel("n (número de tareas)") # Nombre del eje X
-ax1.set_ylabel("tiempo (milisegundos)") # Nombre del eje y
+fig, ax1 = plt.subplots(1, 2, figsize=(10, 8), num="Comparación: Tiempo Gurobi vs Tiempo Greedy")
+graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi", ax1, color = "#1f77b4", columna = 0)
+graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox", ax1, color="#ff7f0e", columna = 0)
+graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox", ax1, color="#2ca02c", columna = 0)
+ax1[0].set_title("n vs Tiempo") # Título
+ax1[0].set_xlabel("n (número de tareas)") # Nombre del eje X
+ax1[0].set_ylabel("tiempo (milisegundos)") # Nombre del eje y
+ax1[0].legend()
+ax1[0].grid(True)
+graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox", ax1, color="#ff7f0e", columna = 1)
+graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox", ax1, color="#2ca02c", columna = 1)
+ax1[1].set_title("n vs Tiempo") # Título
+ax1[1].set_xlabel("n (número de tareas)") # Nombre del eje X
+ax1[1].set_ylabel("tiempo (milisegundos)") # Nombre del eje y
+ax1[1].legend()
+ax1[1].grid(True)
 # Combinar leyendas de ambos ejes
 #lines1, labels1 = ax1.get_legend_handles_labels()
 #lines2, labels2 = ax2.get_legend_handles_labels()
 #ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
-ax1.legend()
-plt.grid(True, which="both", ls=":")
+
 plt.tight_layout()
 plt.show()
 
