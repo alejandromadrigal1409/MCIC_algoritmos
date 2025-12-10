@@ -1,0 +1,56 @@
+# -------------------------
+# Python virtual environments
+# -------------------------
+# Ignore any virtual environment folder anywhere
+**/venv/
+**/.venv/
+
+# -------------------------
+# Python cache / compiled files
+# -------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+
+# -------------------------
+# Distribution / build files
+# -------------------------
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+
+# -------------------------
+# Packaging / dependency management
+# -------------------------
+# pipenv
+Pipfile.lock
+# poetry
+poetry.lock
+
+# -------------------------
+# Jupyter Notebook checkpoints
+# -------------------------
+.ipynb_checkpoints/
+
+# -------------------------
+# Editor / IDE configs
+# -------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# -------------------------
+# OS files
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+
