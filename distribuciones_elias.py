@@ -8,6 +8,7 @@
 ##################################################################
 
 import numpy as np
+from scipy.stats import sem, t
 
 
 ##################################################################
@@ -72,3 +73,16 @@ def generador_instancias(distr: str, n: int, **params):
         print('Distribción no válida.')
 
 
+##################################################################
+# Funciones para obtener estadísticos
+##################################################################
+
+def estadisticos(data):
+    """
+    
+    Regresa (media, error_std) para barras verticales en matplotlib.
+    
+    """
+    media = np.mean(data)
+    error = t.ppf(0.975, len(data)-1) * sem(data)   # 95% CI
+    return media, error

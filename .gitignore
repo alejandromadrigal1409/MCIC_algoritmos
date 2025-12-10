@@ -2,8 +2,9 @@
 # Python virtual environments
 # -------------------------
 # Ignore any virtual environment folder anywhere
-**/venv/
-**/.venv/
+**/venv*/
+**/.venv*/
+
 
 # -------------------------
 # Python cache / compiled files
