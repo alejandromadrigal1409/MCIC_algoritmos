@@ -74,6 +74,7 @@ def solucion_gurobi(m, N, L):
         model.addConstr(sum(l[j] * x[i,j] for j in range(n)) <= Makespan)
 
     model.setParam('MIPGap', 0.001)
+    #model.setParam('TimeLimit', 3)
     model.optimize()
 
     fin = time.perf_counter() 
@@ -94,7 +95,6 @@ def solucion_greedy_1_5(m, N, L):
     l = sorted(l, reverse=True) 
 
     heap = [0] * m  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
-    #heapq.heapify(heap) # crea un min-heap 
 
     for p in l:
         load = heapq.heappop(heap)  # selecciona el procesador con menos cargado 
@@ -136,15 +136,15 @@ def solucion_greedy_2(m, N, L):
   return np.array(makespans), np.array(tiempo)
 
 # ----------------- PROMEDIO E INTERVALO DE CONFIANZA -----------------
-def mediaIntervaloConfianza(makespans):
+def mediaIntervaloConfianza(experimentos):
   varStat = []
-  for arr_10 in makespans:
+  for arr_10 in experimentos:
     aux = []
     n = len(arr_10)
     media = np.mean(arr_10)
     aux.append(media)
 
-    s = s = np.std(arr_10, ddof=1)
+    s = np.std(arr_10, ddof=1)
 
     SE = s/np.sqrt(n)
 
@@ -159,53 +159,21 @@ def mediaIntervaloConfianza(makespans):
 
   return np.array(varStat)
 
-# ----------------- GRAFICA MAKESPAN NORMALIZADO -----------------
-def grafMakespanNorm(n, varStat, varStat_gurobi,leyenda):
-  makespan = []
-  lb = []
-  up = []
-  for i in range(len(varStat)):
-    z = varStat_gurobi[i][0]
-    aux = varStat[i]/z #normalizar datos
-    makespan.append(aux[0])
-    lb.append(aux[1])
-    up.append(aux[2])
-
-  plt.errorbar(n, makespan,
-              yerr=[np.array(makespan) - np.array(lb),
-                    np.array(up) - np.array(makespan)],  # [abajo, arriba]
-              label=leyenda,
-              fmt='-o',               # línea + círculos
-              linewidth=2, markersize=8,
-              capsize=4,              # "gorritos" en los extremos
-              capthick=1.5,
-              alpha=0.9)
-  
 # ----------------- GRAFICA TIEMPOS DE EJECUCIÓN -----------------
-def graficaTiempos(n, varStat,leyenda,ax,color,columna):
-  tiempo = []
+def grafica(n, varStat,leyenda,ax,color,columna):
+  media = []
   lb = []
   up = []
   for i in range(len(varStat)):
     aux = varStat[i]
-    tiempo.append(aux[0]*1000.0)
-    lb.append(aux[1]*1000.0)
-    up.append(aux[2]*1000.0)
+    media.append(aux[0])
+    lb.append(aux[1])
+    up.append(aux[2])
 
- 
 
-  '''
-  ax.plot(n, tiempo,
-          label=leyenda,
-          linewidth=2,
-          marker="o",       # tipo de punto
-          markersize=8,     # tamaño del punto
-          color=color)
-
-  '''
-  ax[columna].errorbar(n, tiempo,
-              yerr=[np.array(tiempo) - np.array(lb),
-                    np.array(up) - np.array(tiempo)],  # [abajo, arriba]
+  ax[columna].errorbar(n, media,
+              yerr=[np.array(media) - np.array(lb),
+                    np.array(up) - np.array(media)],  # [abajo, arriba]
               label=leyenda,
               fmt='-o',               # línea + círculos
               linewidth=2, markersize=8,
@@ -216,21 +184,20 @@ def graficaTiempos(n, varStat,leyenda,ax,color,columna):
   
 
 # ----------------- CÓDIGO PRINCIPAL -----------------
-N = [1000, 2000, 4000, 8000] # vector con número de tareas
-#N = [10, 20, 40, 80]
+N = [50, 100, 200, 400] # vector con número de tareas
 m = 10 # 10 procesadores
 
 print("Distribución normal    (0)")
 print("Distribución lognormal (1)")
 dist = input("Selecione una distribución para generar las duraciónde las tareas: ")
 
-makespans_gurobi     = [[]] * len(N)
-makespans_greedy_1_5 = [[]] * len(N)
-makespans_greedy_2   = [[]] * len(N)
+makespans_gurobi     = [[] for _ in N]
+makespans_greedy_1_5 = [[] for _ in N]
+makespans_greedy_2   = [[] for _ in N]
 
-tiempos_gurobi     = [[]] * len(N)
-tiempos_greedy_1_5 = [[]] * len(N)
-tiempos_greedy_2   = [[]] * len(N)
+tiempos_gurobi       = [[] for _ in N]
+tiempos_greedy_1_5   = [[] for _ in N]
+tiempos_greedy_2     = [[] for _ in N]
 
 # Encontrar solución para 10 instancias
 for _ in range(10):
@@ -248,9 +215,9 @@ for _ in range(10):
   tiempos_greedy_2    = np.hstack((tiempos_greedy_2, tmp_tiempos_greedy_2))
 
 # LLamada a función para calcular promedio e IC de los makespans
-varStat_gurobi_makespans      = mediaIntervaloConfianza(makespans_gurobi)
-varStat_greedy_1_5_makespans  = mediaIntervaloConfianza(makespans_greedy_1_5)
-varStat_greedy_2_makespans    = mediaIntervaloConfianza(makespans_greedy_2)
+varStat_gurobi_makespans      = mediaIntervaloConfianza(makespans_gurobi/makespans_gurobi)
+varStat_greedy_1_5_makespans  = mediaIntervaloConfianza(makespans_greedy_1_5/makespans_gurobi)
+varStat_greedy_2_makespans    = mediaIntervaloConfianza(makespans_greedy_2/makespans_gurobi)
 
 # LLamada a función para calcular promedio e IC de los tiempos de ejecución
 varStat_gurobi_tiempos     = mediaIntervaloConfianza(tiempos_gurobi)
@@ -258,62 +225,40 @@ varStat_greedy_1_5_tiempos = mediaIntervaloConfianza(tiempos_greedy_1_5)
 varStat_greedy_2_tiempos   = mediaIntervaloConfianza(tiempos_greedy_2)
 
 # LLamada a función para gráficar Makespan normalizado
-plt.figure(figsize=(8, 5), num="Comparación: Gurobi vs Greedy") 
-grafMakespanNorm(N, varStat_gurobi_makespans,     varStat_gurobi_makespans, "Gurobi")
-grafMakespanNorm(N, varStat_greedy_1_5_makespans, varStat_gurobi_makespans, "Greedy 1.5 aprox")
-grafMakespanNorm(N, varStat_greedy_2_makespans,   varStat_gurobi_makespans, "Greedy 2 aprox")
-plt.title("n vs Makespan") # Título
-plt.xlabel("n (número de tareas)") # Nombre del eje X
-plt.ylabel("Makespan normalizado") # Nombre del eje y
-plt.legend()  # Muestra la leyenda
-plt.grid(True)
-'''
-# LLamada a función para gráficar tiempos de ejecución
-plt.figure(figsize=(8, 5), num="Comparación: Tiempo Gurobi vs Tiempo Greedy") 
-graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi")
-graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox")
-graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox")
-plt.yscale('log')
-plt.title("n vs Tiempo") # Título
-plt.xlabel("n (número de tareas)") # Nombre del eje X
-plt.ylabel("tiempo (segundos)") # Nombre del eje y
-plt.ylim(0.5, None)
-plt.legend()  # Muestra la leyenda
-plt.grid(True)
-plt.show()
-
-
-'''
-# LLamada a función para gráficar tiempos de ejecución
-fig, ax1 = plt.subplots(1, 2, figsize=(10, 8), num="Comparación: Tiempo Gurobi vs Tiempo Greedy")
-graficaTiempos(N, varStat_gurobi_tiempos,     "Gurobi", ax1, color = "#1f77b4", columna = 0)
-graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox", ax1, color="#ff7f0e", columna = 0)
-graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox", ax1, color="#2ca02c", columna = 0)
-ax1[0].set_title("n vs Tiempo") # Título
+fig1, ax1 =plt.subplots(1, 2, figsize=(10, 8), num="Comparación: Gurobi vs Greedy") 
+grafica(N, varStat_gurobi_makespans,     "Gurobi", ax1, color = "blue", columna = 0)
+grafica(N, varStat_greedy_1_5_makespans, "Greedy 1.5 aprox", ax1, color="orange", columna = 0)
+grafica(N, varStat_greedy_2_makespans,   "Greedy 2 aprox", ax1, color="green", columna = 0)
+ax1[0].set_title("n vs Makespan") # Título
 ax1[0].set_xlabel("n (número de tareas)") # Nombre del eje X
-ax1[0].set_ylabel("tiempo (milisegundos)") # Nombre del eje y
-ax1[0].legend()
+ax1[0].set_ylabel("Makespan normalizado") # Nombre del eje y
+ax1[0].legend()  # Muestra la leyenda
 ax1[0].grid(True)
-graficaTiempos(N, varStat_greedy_1_5_tiempos, "Greedy 1.5 aprox", ax1, color="#ff7f0e", columna = 1)
-graficaTiempos(N, varStat_greedy_2_tiempos,   "Greedy 2 aprox", ax1, color="#2ca02c", columna = 1)
-ax1[1].set_title("n vs Tiempo") # Título
+grafica(N, varStat_gurobi_makespans,     "Gurobi", ax1, color = "blue", columna = 1)
+grafica(N, varStat_greedy_1_5_makespans, "Greedy 1.5 aprox", ax1, color="orange", columna = 1)
+ax1[1].set_title("n vs Makespan") # Título
 ax1[1].set_xlabel("n (número de tareas)") # Nombre del eje X
-ax1[1].set_ylabel("tiempo (milisegundos)") # Nombre del eje y
-ax1[1].legend()
+ax1[1].set_ylabel("Makespan normalizado") # Nombre del eje y
+ax1[1].legend()  # Muestra la leyenda
 ax1[1].grid(True)
-# Combinar leyendas de ambos ejes
-#lines1, labels1 = ax1.get_legend_handles_labels()
-#lines2, labels2 = ax2.get_legend_handles_labels()
-#ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+
+# LLamada a función para gráficar tiempos de ejecución
+fig2, ax2 = plt.subplots(1, 2, figsize=(10, 8), num="Comparación: Tiempo Gurobi vs Tiempo Greedy")
+grafica(N, varStat_gurobi_tiempos*1000.0,     "Gurobi", ax2, color = "blue", columna = 0)
+grafica(N, varStat_greedy_1_5_tiempos*1000.0, "Greedy 1.5 aprox", ax2, color="orange", columna = 0)
+grafica(N, varStat_greedy_2_tiempos*1000.0,   "Greedy 2 aprox", ax2, color="green", columna = 0)
+ax2[0].set_title("n vs Tiempo") # Título
+ax2[0].set_xlabel("n (número de tareas)") # Nombre del eje X
+ax2[0].set_ylabel("tiempo (milisegundos)") # Nombre del eje y
+ax2[0].legend()
+ax2[0].grid(True)
+grafica(N, varStat_greedy_1_5_tiempos*1000.0, "Greedy 1.5 aprox", ax2, color="orange", columna = 1)
+grafica(N, varStat_greedy_2_tiempos*1000.0,   "Greedy 2 aprox", ax2, color="green", columna = 1)
+ax2[1].set_title("n vs Tiempo") # Título
+ax2[1].set_xlabel("n (número de tareas)") # Nombre del eje X
+ax2[1].set_ylabel("tiempo (milisegundos)") # Nombre del eje y
+ax2[1].legend()
+ax2[1].grid(True)
 
 plt.tight_layout()
 plt.show()
-
-
-
-
-
-
-
-
-
