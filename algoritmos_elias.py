@@ -1,7 +1,9 @@
 # ------------------------------------------------------------
-# algoritmos.py
-# Algoritmos para resolver el problema P||Cmax
-# ------------------------------------------------------------
+#!/usr/bin/env python3
+
+# @author:
+# Este modulo contiene todos los algoritmos utilizados para realizar el proyecto.
+
 
 import heapq
 import gurobipy as gp
@@ -20,7 +22,6 @@ def greedy_2aproximacion(l, m):
     Retorna:
         Makespan estimado por el algoritmo Greedy 2-aproximación.
     """
-    # Ordenar tareas de mayor a menor
     # Min-heap con cargas por procesador
     heap = [0] * m
 
@@ -73,29 +74,33 @@ def solucion_gurobi(l, m):
 
     model = gp.Model("P||Cmax")
     model.setParam('OutputFlag', 0)  # apagar impresión de Gurobi
+    model.setParam('TimeLimit', 60)  # Maximo 60 segundos por problema
+    model.setParam("MIPGap", 0.001)
 
-    # Variables: x[i,j] = 1 si tarea j va a máquina i
+    # Variables: x[i,j] = 1 si tarea j va a máquina i, 0 si no.
     x = model.addVars(m, n, vtype=GRB.BINARY, name="x")
 
-    # Makespan
+    # Makespan, este representa el maximo de carga que tienen los procesadores.
     Cmax = model.addVar(lb=0.0, vtype=GRB.CONTINUOUS, name="Cmax")
 
-    # Objetivo
+    # Objetivo, la idea es que el makespan sea lo más pequeño posible.
     model.setObjective(Cmax, GRB.MINIMIZE)
 
-    # Cada tarea debe asignarse a exactamente una máquina
+    # Cada tarea debe asignarse a exactamente a un procesador.
     for j in range(n):
         model.addConstr(sum(x[i, j] for i in range(m)) == 1)
 
     # Carga de cada máquina <= Cmax
     for i in range(m):
         model.addConstr(sum(l[j] * x[i, j] for j in range(n)) <= Cmax)
-
-    # Opcional: mejorar rapidez
-    model.setParam("MIPGap", 0.001)
-
+    
     # Resolver
     model.optimize()
 
     return Cmax.X
 
+def main():
+    pass
+
+if __name__ == "__main__":
+    main()
