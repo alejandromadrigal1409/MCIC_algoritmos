@@ -32,9 +32,10 @@ def distribucion_normal(n: int, **params):
         * scale: Para referirnos a la desviación estándar.
 
     """
-    loc = params.get('mu', 0.0)
-    scale = params.get('sigma', 1.0)
-    return np.random.normal(loc = loc, scale = scale, size = n)
+    loc_val = params.get('loc', 0.0) 
+    scale_val = params.get('scale', 1.0)
+    
+    return np.random.normal(loc=loc_val, scale=scale_val, size=n)
 
 # ----------------- DISTRIBUCIÓN LOGNORMAL -----------------
 
@@ -52,7 +53,10 @@ def distribucion_lognormal(n: int, **params):
         * param2: Para referirnos a la desviación estándar.
 
     """
-    return np.random.lognormal(**params, size = n)
+    mu_val = params.get('loc', 0.0) # Media
+    sigma_val = params.get('scale', 1.0) # Desviacion estandar
+
+    return np.random.lognormal(mean=mu_val, sigma=sigma_val, size=n)
 
 
 ##################################################################

@@ -74,7 +74,7 @@ def solucion_gurobi(l, m):
 
     model = gp.Model("P||Cmax")
     model.setParam('OutputFlag', 0)  # apagar impresión de Gurobi
-    model.setParam('TimeLimit', 60)  # Maximo 60 segundos por problema
+    #model.setParam('TimeLimit', 60)  # Maximo 60 segundos por problema
     model.setParam("MIPGap", 0.001)
 
     # Variables: x[i,j] = 1 si tarea j va a máquina i, 0 si no.

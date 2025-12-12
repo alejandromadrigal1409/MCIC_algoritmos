@@ -58,13 +58,13 @@ def main():
     # --- PROCESAMIENTO DE ARGUMENTOS ---
     # Obtenemos los argumentos de la terminal
     args = parse_arguments()
-
-    # Parametros que vamos a pedir (Actualizados con args).
+    # Parametros actualizados con args..
     logging.info('Selección de parámetros...')
     numero_instancias = args.instancias
     distribucion = args.distribucion
-    # Mapeamos mu/sigma a loc/scale para que coincida con tu diccionario original
-    params = {'loc': args.mu, 'scale': args.sigma} 
+    params = {'loc': args.mu, 'scale': args.sigma}
+    logging.info(f"Parámetros de distribución: {params}")
+
     NUMERO_PROCESADORES = args.procesadores
     NUMERO_EXPERIMENTOS = args.experimentos
 
@@ -94,8 +94,8 @@ def main():
             soluciones[k][n] = []
             tiempos[k][n] = []
 
-        for _ in range(NUMERO_EXPERIMENTOS):
-            logging.info(f'Generando instancias...')
+        for i in range(NUMERO_EXPERIMENTOS):
+            logging.info(f'Generando instancias (experimento {i})...')
             instancia = generador_instancias(distr=distribucion, n=n, **params) 
 
             logging.info(f'Ejecutando greedy 2a...')
