@@ -16,6 +16,7 @@ import heapq
 from scipy.stats import t
 import matplotlib.pyplot as plt
 import time
+import os
 
 def generador_instancias(dist, n):
   #np.random.seed(69)
@@ -73,8 +74,8 @@ def solucion_gurobi(m, N, L):
     for i in range(m):
         model.addConstr(sum(l[j] * x[i,j] for j in range(n)) <= Makespan)
 
-    model.setParam('MIPGap', 0.001)
-    #model.setParam('TimeLimit', 3)
+    model.setParam('MIPGap', 0.000)
+    model.setParam('TimeLimit', 2)
     model.optimize()
 
     fin = time.perf_counter() 
@@ -187,9 +188,41 @@ def grafica(n, varStat,leyenda,ax,color,columna):
 N = [50, 100, 200, 400] # vector con número de tareas
 m = 10 # 10 procesadores
 
-print("Distribución normal    (0)")
-print("Distribución lognormal (1)")
-dist = input("Selecione una distribución para generar las duraciónde las tareas: ")
+# Limpia pantalla (Windows / Linux)
+os.system("cls" if os.name == "nt" else "clear")
+
+# Colores ANSI
+C_RESET = "\033[0m"
+C_BLUE  = "\033[94m"
+C_CYAN  = "\033[96m"
+C_WHITE = "\033[97m"
+C_BOLD  = "\033[1m"
+C_RED   = "\033[91m"
+C_UNDER = "\033[4m"
+
+print(f"""
+{C_CYAN}{C_BOLD}
+╔══════════════════════════════════════════════════════╗
+║                                                      ║
+║           SIMULACIÓN DE PLANIFICACIÓN P||Cmax        ║
+║                                                      ║
+║      Comparación: Gurobi vs Algoritmos Greedy        ║
+║                                                      ║
+╚══════════════════════════════════════════════════════╝
+{C_RESET}
+{C_WHITE}Generador de instancias para pruebas experimentales
+Duraciones de tareas: seleccione la distribución{C_RESET}
+
+{C_BLUE}    [0]{C_RESET}  Distribución Normal
+{C_BLUE}    [1]{C_RESET}  Distribución Lognormal
+""")
+
+while True:
+  dist = input(f"{C_BOLD}Seleccione una opción (0/1): {C_RESET}")
+  if dist == '0' or dist == '1':
+    break
+  else:
+    print(f"{C_RED}{C_BOLD}{C_UNDER}ERROR: OPCIÓN NO VÁLIDA !!!{C_RESET}")
 
 makespans_gurobi     = [[] for _ in N]
 makespans_greedy_1_5 = [[] for _ in N]
