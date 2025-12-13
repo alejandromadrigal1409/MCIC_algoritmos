@@ -80,10 +80,10 @@ def solucion_gurobi(m, N, L):
 
     fin = time.perf_counter() 
 
-    makespans.append([Makespan.X])
-    tiempo.append([fin - inicio])
+    makespans.append(Makespan.X)
+    tiempo.append(fin - inicio)
   
-  return np.array(makespans), np.array(tiempo)
+  return makespans, tiempo
 
 # ----------------- SOLUCIÓN CON GREEDY 1.5 -----------------
 def solucion_greedy_1_5(m, N, L):
@@ -106,10 +106,10 @@ def solucion_greedy_1_5(m, N, L):
 
     fin = time.perf_counter() 
  
-    makespans.append([Makespan])
-    tiempo.append([fin - inicio])
+    makespans.append(Makespan)
+    tiempo.append(fin - inicio)
   
-  return np.array(makespans), np.array(tiempo)
+  return makespans, tiempo
 
 # ----------------- SOLUCIÓN CON GREEDY 2 -----------------
 def solucion_greedy_2(m, N, L):
@@ -131,10 +131,10 @@ def solucion_greedy_2(m, N, L):
     fin = time.perf_counter() 
   
     # Gudar soluciones
-    makespans.append([Makespan])
-    tiempo.append([fin - inicio])
+    makespans.append(Makespan)
+    tiempo.append(fin - inicio)
   
-  return np.array(makespans), np.array(tiempo)
+  return makespans, tiempo
 
 # ----------------- PROMEDIO E INTERVALO DE CONFIANZA -----------------
 def mediaIntervaloConfianza(experimentos):
@@ -236,16 +236,26 @@ tiempos_greedy_2     = [[] for _ in N]
 for _ in range(10):
   L = generador_instancias(dist, N)
   tmp_makespans_gurobi, tmp_tiempos_gurobi = solucion_gurobi(m, N, L)
-  makespans_gurobi = np.hstack((makespans_gurobi, tmp_makespans_gurobi))
-  tiempos_gurobi   = np.hstack((tiempos_gurobi, tmp_tiempos_gurobi))
-
   tmp_makespans_greedy_1_5, tmp_tiempos_greedy_1_5 = solucion_greedy_1_5(m, N, L)
-  makespans_greedy_1_5 = np.hstack((makespans_greedy_1_5, tmp_makespans_greedy_1_5))
-  tiempos_greedy_1_5   = np.hstack((tiempos_greedy_1_5, tmp_tiempos_greedy_1_5))
-
   tmp_makespans_greedy_2, tmp_tiempos_greedy_2 = solucion_greedy_2(m, N, L)
-  makespans_greedy_2  = np.hstack((makespans_greedy_2, tmp_makespans_greedy_2))
-  tiempos_greedy_2    = np.hstack((tiempos_greedy_2, tmp_tiempos_greedy_2))
+
+  for i in range(len(N)):
+    makespans_gurobi[i].append(tmp_makespans_gurobi[i])
+    makespans_greedy_1_5[i].append(tmp_makespans_greedy_1_5[i])
+    makespans_greedy_2[i].append(tmp_makespans_greedy_2[i])
+
+    tiempos_gurobi[i].append(tmp_tiempos_gurobi[i])
+    tiempos_greedy_1_5[i].append(tmp_tiempos_greedy_1_5[i])
+    tiempos_greedy_2[i].append(tmp_tiempos_greedy_2[i])
+
+
+makespans_gurobi = np.array(makespans_gurobi)
+makespans_greedy_1_5 = np.array(makespans_greedy_1_5)
+makespans_greedy_2 = np.array(makespans_greedy_2)
+
+tiempos_gurobi = np.array(tiempos_gurobi)
+tiempos_greedy_1_5 = np.array(tiempos_greedy_1_5)
+tiempos_greedy_2 = np.array(tiempos_greedy_2)
 
 # LLamada a función para calcular promedio e IC de los makespans
 varStat_gurobi_makespans      = mediaIntervaloConfianza(makespans_gurobi/makespans_gurobi)
