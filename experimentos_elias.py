@@ -48,6 +48,7 @@ def parse_arguments():
     
     parser.add_argument('--mu', type=float, default=3.0, help='Media (loc) para la distribución')
     parser.add_argument('--sigma', type=float, default=1.0, help='Desv. Estándar (scale)')
+    parser.add_argument('--seed', type=int, default=69, help='Semilla para reproducibilidad')
 
     return parser.parse_args()
 
@@ -97,6 +98,7 @@ def main():
         for i in range(NUMERO_EXPERIMENTOS):
             logging.info(f'Generando instancias (experimento {i})...')
             instancia = generador_instancias(distr=distribucion, n=n, **params) 
+            logging.info(f'Ejecutando algoritmos con la siguiente instancia: {instancia}')
 
             logging.info(f'Ejecutando greedy 2a...')
             t_inicio = time.perf_counter()
@@ -271,6 +273,13 @@ def main():
     nombre_archivo_tiempos = f'GráficaTiempo_{timestamp}.png'
     plt.savefig(output_dir / nombre_archivo_tiempos)
     logging.info('Se guardó con éxito la gráfica de tiempos de ejecución.')
+    
+
+    logging.info(f'Los resultados del makespan son los siguientes: {soluciones.items()}')
 
 if __name__ == "__main__":
+
+    args = parse_arguments()
+    np.random.seed(args.seed)
+    logging.info(f'Semilla fija en: {args.seed}')
     main()
