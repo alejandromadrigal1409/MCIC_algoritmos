@@ -95,18 +95,11 @@ def solucion_greedy_1_5(m, N, L):
 
     l = sorted(l, reverse=True) 
 
-    heap = [0] * m  # crea una lista de ceros de tamaño m (carga de trabajo en cada procesador)
-
-    for p in l:
-        load = heapq.heappop(heap)  # selecciona el procesador con menos cargado 
-        load += p # añade tarea nueva al procesador menos cargado
-        heapq.heappush(heap, load) # creo min-heap con los dato nuevos
-
-    Makespan = max(heap)
+    Makespan, _ = solucion_greedy_2(m, N, [l])
 
     fin = time.perf_counter() 
  
-    makespans.append(Makespan)
+    makespans.append(Makespan[0])
     tiempo.append(fin - inicio)
   
   return makespans, tiempo
@@ -115,7 +108,7 @@ def solucion_greedy_1_5(m, N, L):
 def solucion_greedy_2(m, N, L):
   makespans = []
   tiempo = []
-  for aux in range(len(N)):
+  for aux in range(len(L)):
     l = L[aux]
     inicio = time.perf_counter() 
 
