@@ -18,8 +18,8 @@ from pathlib import Path
 import argparse
 
 # Imports de modulos propios
-from distribuciones_elias import *
-from algoritmos_elias import *
+from distribuciones import *
+from algoritmos import *
 
 logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -29,12 +29,12 @@ logging.basicConfig(level = logging.INFO, format='%(asctime)s - %(levelname)s - 
 
 def parse_arguments():
     """
-    Generada completamente por Gemini.
+    Funciones para selección de parametros nivel terminal.
     """
     parser = argparse.ArgumentParser(description="Simulación de Algoritmos de Balanceo de Carga")
     
     # Argumentos configurables
-    parser.add_argument('--instancias', nargs='+', type=int, default=[10, 50, 100, 200, 400], 
+    parser.add_argument('--instancias', nargs='+', type=int, default=[50, 100, 200, 400], 
                         help='Lista de tamaños de instancias (ej: 10 50 100)')
     
     parser.add_argument('--procesadores', type=int, default=10, 
@@ -48,12 +48,13 @@ def parse_arguments():
     
     parser.add_argument('--mu', type=float, default=3.0, help='Media (loc) para la distribución')
     parser.add_argument('--sigma', type=float, default=1.0, help='Desv. Estándar (scale)')
-    parser.add_argument('--seed', type=int, default=69, help='Semilla para reproducibilidad')
+    parser.add_argument('--seed', type=int, default=42, help='Semilla para reproducibilidad')
 
     return parser.parse_args()
 
 
 def main():
+    
     logging.info('Inicio de la ejecución del programa...')
 
     # --- PROCESAMIENTO DE ARGUMENTOS ---
@@ -96,9 +97,9 @@ def main():
             tiempos[k][n] = []
 
         for i in range(NUMERO_EXPERIMENTOS):
-            logging.info(f'Generando instancias (experimento {i})...')
+            logging.info(f'Generando instancias (experimento {i+1})...')
             instancia = generador_instancias(distr=distribucion, n=n, **params) 
-            logging.info(f'Ejecutando algoritmos con la siguiente instancia: {instancia}')
+            #logging.info(f'Ejecutando algoritmos con la siguiente instancia: {instancia}')
 
             logging.info(f'Ejecutando greedy 2a...')
             t_inicio = time.perf_counter()
@@ -190,12 +191,12 @@ def main():
     ax = axs[0]
     ax.errorbar(
         numero_instancias, ratios['Greedy_2Aprox'], yerr=errores_ratio['Greedy_2Aprox'],
-        fmt='s--', linewidth=2, markersize=7, label="Greedy 2-Aprox / Gurobi"
+        fmt='s--', linewidth=2, markersize=7, label="Greedy 2-Aprox / Gurobi", color='blue'
     )
 
     ax.errorbar(
         numero_instancias, ratios['Greedy_15Aprox'], yerr=errores_ratio['Greedy_15Aprox'],
-        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi"
+        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi", color = 'orange'
     )
 
     # Líneas horizontales
@@ -214,18 +215,20 @@ def main():
     ##############################################
 
     ax = axs[1]
-
+    '''
     ax.errorbar(
-        numero_instancias, ratios['Greedy_2Aprox'], yerr=errores_ratio['Greedy_2Aprox'],
+        numero_instancias, ratios['Gurobi'], yerr=errores_ratio['Greedy_2Aprox'],
         fmt='s--', linewidth=2, markersize=7, label="Greedy 2-Aprox / Gurobi"
     )
+    '''
+    ax.axhline(1, color='black', linestyle='-', linewidth=2, label='Gurobi')
 
     ax.errorbar(
         numero_instancias, ratios['Greedy_15Aprox'], yerr=errores_ratio['Greedy_15Aprox'],
-        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi"
+        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi", color='orange'
     )
 
-    ax.set_title("Comparación normalizada sin cotas")
+    ax.set_title("Comparación Greedy 1.5 contra Gurobi")
     ax.set_xlabel("Tamaño de la instancia (n)")
     ax.grid(True)
     ax.legend()
@@ -274,12 +277,14 @@ def main():
     plt.savefig(output_dir / nombre_archivo_tiempos)
     logging.info('Se guardó con éxito la gráfica de tiempos de ejecución.')
     
-
-    logging.info(f'Los resultados del makespan son los siguientes: {soluciones.items()}')
+    #logging.info(f'Los resultados del makespan son los siguientes: {soluciones.items()}')
+    
 
 if __name__ == "__main__":
-
     args = parse_arguments()
     np.random.seed(args.seed)
     logging.info(f'Semilla fija en: {args.seed}')
+    t_inicio_total = time.perf_counter()
     main()
+    t_final_total = time.perf_counter()
+    logging.info(f'Tiempo de ejecución total del programa: {round(t_final_total-t_inicio_total, 2)} segundos')
