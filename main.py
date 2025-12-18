@@ -191,17 +191,17 @@ def main():
     ax = axs[0]
     ax.errorbar(
         numero_instancias, ratios['Greedy_2Aprox'], yerr=errores_ratio['Greedy_2Aprox'],
-        fmt='s--', linewidth=2, markersize=7, label="Greedy 2-Aprox / Gurobi", color='blue'
+        fmt='s--', linewidth=2, markersize=7, label="Greedy 2-Aprox / Gurobi", color='tab:blue'
     )
 
     ax.errorbar(
         numero_instancias, ratios['Greedy_15Aprox'], yerr=errores_ratio['Greedy_15Aprox'],
-        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi", color = 'orange'
+        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi", color = 'tab:orange'
     )
 
     # Líneas horizontales
-    ax.axhline(2, color='gray', linestyle='--', linewidth=1.5, label='Cota teórica 2')
-    ax.axhline(1.5, color='gray', linestyle=':', linewidth=1.5, label='Cota teórica 1.5')
+    ax.axhline(2, color='gray', linestyle='--', linewidth=2, label='Cota teórica 2')
+    ax.axhline(1.5, color='gray', linestyle=':', linewidth=2, label='Cota teórica 1.5')
     ax.axhline(1, color='black', linestyle='-', linewidth=2, alpha=0.6, label='Gurobi (óptimo)')
 
     ax.set_title("Comparación normalizada con cotas teóricas")
@@ -225,7 +225,7 @@ def main():
 
     ax.errorbar(
         numero_instancias, ratios['Greedy_15Aprox'], yerr=errores_ratio['Greedy_15Aprox'],
-        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi", color='orange'
+        fmt='d--', linewidth=2, markersize=7, label="Greedy 1.5-Aprox / Gurobi", color='tab:orange'
     )
 
     ax.set_title("Comparación Greedy 1.5 contra Gurobi")
