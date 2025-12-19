@@ -42,6 +42,7 @@ def greedy_1_5_aproximacion(l, m):
     """
     Misma estructura que el greedy anterior.
     """
+    # Ordena las tareas de mayor a menor duración
     tareas = sorted(l, reverse=True)
 
     heap = [0] * m

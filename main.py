@@ -98,7 +98,7 @@ def main():
 
         for i in range(NUMERO_EXPERIMENTOS):
             logging.info(f'Generando instancias (experimento {i+1})...')
-            instancia = generador_instancias(distr=distribucion, n=n, **params) 
+            instancia = np.abs(generador_instancias(distr=distribucion, n=n, **params))
             #logging.info(f'Ejecutando algoritmos con la siguiente instancia: {instancia}')
 
             logging.info(f'Ejecutando greedy 2a...')
@@ -168,7 +168,7 @@ def main():
 
             # 3. Calculamos el Intervalo de Confianza (95%) para los ratios
             # Error Estándar de la Media (SEM)
-            std_dev = np.std(ratios_individuales, ddof=1) # ddof=1 para muestra insesgada
+            std_dev = np.std(ratios_individuales, ddof=1) # ddof=1 para muestra insesgada 
             sem = std_dev / np.sqrt(len(ratios_individuales)) # Error estándar
             
             # Valor crítico t de Student (para N=10 y 95% de confianza)

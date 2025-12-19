@@ -91,7 +91,7 @@ def estadisticos(data):
     """
     media = np.mean(data)
     error = t.ppf(0.975, len(data)-1) * sem(data)   # 95% CI
-    return media, error
+    return media, error      
 
 def main():
     pass
